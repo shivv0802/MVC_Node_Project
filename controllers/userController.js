@@ -1,17 +1,44 @@
 const User = require('../models/user.models');
 
 async function createUser(req, res){
-  try {
-    const { name, email, password } = req.body;
-    const user = new User({ name, email, password });
-    const createdUser = await user.save();
-    res.status(201).json(createdUser);
-  } catch (err) {
-    console.log(err)
-    res.status(400).json({message: "error in creating user", error: err.message });
+  const { username, email, password } = req.body;
+  const errors = [];
+
+
+
   
+  if (!username || username.length < 3 || username.length > 20) {
+    errors.push("Username must be between 3 and 20 characters.");
   }
-};
+
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    errors.push("Please provide a valid email address.");
+  }
+
+ 
+  
+
+  if (!password || password.length < 6) {
+    errors.push("Password must be at least 6 characters long.");
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    errors.push("Password must contain at least one letter.");
+  }
+  if (!/[0-9]/.test(password)) {
+    errors.push("Password must contain at least one number.");
+  }
+
+  
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  res.status(201).json({
+    message: 'User created successfully!',
+    user: { username, email, password },  
+  });
+}
 
 
 async function getAllUsers(req, res){
