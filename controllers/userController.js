@@ -1,52 +1,29 @@
 const User = require('../models/user.models');
-
-async function createUser(req, res){
-  const { username, email, password } = req.body;
-  const errors = [];
+//const check = require('../validations/checkValidation')
 
 
 
+
+async function createUser(req,res, check){
+  try {
+    const { name, email, password } = req.body;
+    const user = new User({ name, email, password });
+    const createdUser = await user.save();
+    res.status(201).json({createdUser});
+  } catch (err) {
+    console.log(err)
+   res.status(400).json({message: "error in creating user", error: err.message });
   
-  if (!username || username.length < 3 || username.length > 20) {
-    errors.push("Username must be between 3 and 20 characters.");
   }
-
-
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-    errors.push("Please provide a valid email address.");
-  }
-
- 
-  
-
-  if (!password || password.length < 6) {
-    errors.push("Password must be at least 6 characters long.");
-  }
-  if (!/[a-zA-Z]/.test(password)) {
-    errors.push("Password must contain at least one letter.");
-  }
-  if (!/[0-9]/.test(password)) {
-    errors.push("Password must contain at least one number.");
-  }
-
-  
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  res.status(201).json({
-    message: 'User created successfully!',
-    user: { username, email, password },  
-  });
-}
+};
 
 
 async function getAllUsers(req, res){
   try {
     const users = await User.find();
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: "Error in showing user", error: error.message });
+    return res.status(500).json({ message: "Error in showing user", error: error.message });
   }
 };
 
@@ -56,12 +33,12 @@ async function deleteUser(req,res){
     const userId = req.params.id;
     const deletedUser = await User.findByIdAndDelete(userId);
     if(!deletedUser){
-      res.status(404).json({message : "user not found", user : deletedUser})
+      return res.status(404).json({message : "user not found", user : deletedUser})
     }
-      res.status(200).json({ message: "User deleted successfully", user: deletedUser });
+      return res.status(200).json({ message: "User deleted successfully", user: deletedUser });
   } catch (error) {
     console.log(error)
-    res.status(500).json({ message: "Error in deleting user", error: error.message });
+    return res.status(500).json({ message: "Error in deleting user", error: error.message });
   }
   }
 
@@ -73,11 +50,11 @@ async function updateUser(req,res){
     if(!updatedUser){
       return res.status(404).json({message : "user not found"})
     } 
-    res.status(200).json({message : "user Updated", updateUsers: updatedUser })
+    return res.status(200).json({message : "user Updated", updateUsers: updatedUser })
     }
     catch(error){
       console.log(error)
-      res.status(500).json({ message: "Error in updating user", error: error.message });
+      return res.status(500).json({ message: "Error in updating user", error: error.message });
     }
 }
   

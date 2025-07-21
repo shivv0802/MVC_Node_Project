@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const validateData = require('../middleware/validation.middleware')
+const {validateUserData} = require('../middleware/validation.middleware')
 
 
 
@@ -12,7 +12,7 @@ const {
 } = require('../controllers/userController');
 
 
-router.post('/',validateData, createUser);
+router.post('/',validateUserData, createUser);
 router.get('/', getAllUsers);
 router.delete('/:id', deleteUser);
 router.put('/:id', updateUser);
