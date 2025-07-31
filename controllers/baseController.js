@@ -1,0 +1,31 @@
+const GeneralError = require('../errors/GeneralError')
+
+class BaseController{
+async sendErrorResponse(res,err){
+    if(err instanceof GeneralError){
+        console.log(err instanceof GeneralError);
+        return res.status(err.getStatusCode()).json(err.getJsonRes())
+    }
+     
+    return res.status(500).json({
+        code:500,
+        message : "internal server error"
+    })
+
+}
+
+async sendJSONResponse(res,metadata,message,data){
+    const response = {
+        code : 200,
+        metadata,
+        message,
+        data
+    }
+
+    res.status(200).json(response)
+}
+
+
+}
+
+module.exports = BaseController

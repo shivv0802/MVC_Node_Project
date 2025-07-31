@@ -1,15 +1,14 @@
 const User = require('../models/user.models');
+const BadRequest = require('../errors/BadRequest')
 
 
 
 
-async function createUserRepo(data1) {
+async function createUserRepo(data) {
   try {
-    const { name, email, password, role } = data1;
-    const newUser = await User.create({ name, email, password, role });
-    return newUser;
+    return await User.create(data);
   } catch (error) {
-    throw new Error("Internal Server Error");
+    throw error;
   }
 }
 
@@ -17,57 +16,60 @@ async function createUserRepo(data1) {
 
 async function findUser() {
     try {
-        const user = await User.find();
-        return user;
+        return await User.find();
+    
     }
     catch (error) {
-        throw new Error("Internal Server Error")
+        throw error;
     }
 }
 
 async function deleteUser(id) {
     try {
-        const user = await User.findById(id);
-        return user;
+        return await User.findById(id);
+    
     }
     catch (error) {
-        throw new Error("Internal Server Error")
+        throw error;
     }
 
 }
 
 async function updateUser(id, data) {
     try {
-        const { name, email,password } = data;
-        return await User.findByIdAndUpdate(id,
-      { name, email, password }, 
-      { new: true }
-    );
-    }
-    catch (error) {
-        throw new Error("Internal Server Error")
+        
+        const { name, email, password, role } = data;
 
+        return await User.findByIdAndUpdate(
+            id,
+            { name, email, password, role },
+            { new: true }
+        );
+
+     
+    } catch (error) {
+      
+        throw error;
     }
 }
 
-
 async function getUserByEmail(email) {
     try {
-        const user = await User.findOne({email});
+      return await User.findOne({email});
         
-        return user;
+       
     } catch (error) {
-        throw new Error("Internal Server Error");
+        throw error;
     }
 }
 
 async function getUserById(id) {
-    try {
-        const user = await User.findById(id);
-        console.log(user)
-        return user;
+   
+    try{
+        return await User.findById(id);
+    
     } catch (error) {
-        throw new Error("Internal Server Error");
+      throw error;
     }
 }
 

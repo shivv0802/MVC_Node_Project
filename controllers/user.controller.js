@@ -1,71 +1,55 @@
 
 const { getAllUserService, deleteOneUserService, updateOneUserService, createOneUserService, loginOneUserService  } = require('../service/user.service');
+const BaseController = require('../controllers/baseController')
+const basecontroller = new BaseController();
 
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   try {
     const newUser = await createOneUserService(req.body);
     
-    return res.status(201).json({
-      code: 201,
-      metadata: {},
-      message: 'User registered successfully',
-      data: newUser,
-    });
+    return res.status(201).json(basecontroller.sendJSONResponse(res,{},"User Registered Successfully",{data:newUser}));
   } catch (error) {
-    console.log(error)
-    return res.status(500).json({
-      code: 500,
-      message: 'Error during registration',
-      error: error.message,
-    });
+     sendErrorResponse(res,error)
   }
 }
 
-async function loginUser(req, res) {
+async function loginUser(req,res ,next) {
   try {
     const token = await loginOneUserService(req.body);
-    return res.status(200).json({
-      code: 200,
-      metadata: {},
-      message: 'Login successful',
-      data: { token }
-    });
+   
+
+    return res.status(200).json(basecontroller.sendJSONResponse(res,{},"Logged in successfully",{data: token}));
   } catch (error) {
-    return res.status(400).json({
-      code: 400,
-      message: 'Login failed',
-      error: error.message
-    });
+      sendErrorResponse(res,error)
   }
 }
-async function getAllUser(req, res) {
+async function getAllUser(req, res, next) {
     try {
         const users = await getAllUserService();
-        return res.status(200).json({ code: 200, metadata: {}, message: "Users fetched successfully", data: users });
+        return res.status(200).json(basecontroller.sendJSONResponse(res,{},"User Fetched Successfully",{data:users}));
     } catch (error) {
-
-        return res.status(500).json({ code: 500, message: error.message });
+        sendErrorResponse(res,error)
     }
 }
 
-async function deleteOneUser(req, res) {
+async function deleteOneUser(req, res, next) {
     try {
         const deletedUser = await deleteOneUserService(req.params.id);
        
-        return res.status(200).json({ code: 200, metadata: {}, message: "User deleted", data: deletedUser });
+        return res.status(200).json(basecontroller.sendJSONResponse(res,{},"User deleted",{ data: deletedUser }));
     } catch (error) {
-        console.log("Error", error);
-        return res.status(500).json({ code: 500, message: error.message });
+        sendErrorResponse(res,error)
     }
 }
 
-async function updateOneUser(req, res) {
+async function updateOneUser(req, res, next) {
     try {
         const updatedUser = await updateOneUserService(req.params.id, req.body);
         
-        return res.status(200).json({ code: 200, metadata: {}, message: "User updated", data: updatedUser });
+        return res.status(200).json(basecontroller.sendJSONResponse(res,{},"User updated", {data: updatedUser }));
     } catch (error) {
-        return res.status(500).json({ code: 500, message: error.message });
+      console.log(error instanceof GeneralError);
+        sendErrorResponse(res,error)
     }
 }
 

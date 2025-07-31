@@ -1,42 +1,53 @@
 const User = require('../models/user.models');
+const UnauthorizedError = require('../errors/UnauthorizedError') 
+const NotFoundError = require('../errors/NotFoundError')
 
 
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const authenticateAndAuthorize = (...allowedRoles) => {
-  return async (req,res,next) => {
-  const { authorization } = req.headers;
+  return async (req, res, next) => {
+    try {
+      const { authorization } = req.headers;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.status(401).json({ code: 401, message: "Authorization header missing or malformed", error: error.message });
-  }
+      if (!authorization || !authorization.startsWith('Bearer ')) {
+        return next(new UnauthorizedError("Unauthorized", "Authorization header is missing or malformed"));
+      }
 
-  const token = authorization.split(' ')[1];
+      const token = authorization.split(' ')[1];
 
+      if (!token) {
+        return next(new UnauthorizedError("Unauthorized", "Token not provided"));
+      }
 
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (err) {
+       
+        return next(new UnauthorizedError("Unauthorized", "JWT is malformed or invalid"));
+      }
 
-  if (!token) {
-    return res.status(401).json({ code: 401, message: "token not found", error: error.message });
-  }
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return next(new NotFoundError("NotFound", "User not found"));
+      }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    //console.log("Fetched user from DB:", user);
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
+      req.user = user;
+
+      if (!allowedRoles.includes(user.role)) {
+        return next(new UnauthorizedError("Unauthorized", "Access denied"));
+      }
+
+      next();
+
+    } catch (err) {
+      return next(err);
     }
-    req.user = user;
-    if(!allowedRoles.includes(user.role)){
-      return res.status(403).json({code : 403, message : "User cannot have access to database"})
-    }
-    next();
-  } catch (err) {
-    return res.status(401).json({ msg: "Token is not valid" });
-  }
-}
-}
+  };
+};
+
 
 
 
