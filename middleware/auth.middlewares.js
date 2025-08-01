@@ -37,7 +37,7 @@ const authenticateAndAuthorize = (...allowedRoles) => {
       req.user = user;
 
       if (!allowedRoles.includes(user.role)) {
-        return next(new UnauthorizedError("Unauthorized", "Access denied"));
+        return next(new UnauthorizedError("Unauthorized", "Access denied User Cannot have access to DB"));
       }
 
       next();

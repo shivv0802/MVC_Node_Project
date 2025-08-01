@@ -14,12 +14,21 @@ async function createUserRepo(data) {
 
 
 
-async function findUser() {
+async function findUser(page,limit) {
     try {
-        return await User.find();
+        const skip = (page-1)*limit;
+        return await User.find().skip(skip).limit(limit);
     
     }
     catch (error) {
+        throw error;
+    }
+}
+
+async function countAllUsers(){
+    try{
+    return User.countDocuments();
+    } catch(error){
         throw error;
     }
 }
@@ -74,4 +83,4 @@ async function getUserById(id) {
 }
 
 
-module.exports = { findUser, deleteUser, updateUser, createUserRepo, getUserByEmail, getUserById };
+module.exports = { findUser, deleteUser, updateUser, createUserRepo, getUserByEmail, getUserById, countAllUsers };

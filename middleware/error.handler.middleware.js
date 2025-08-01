@@ -1,8 +1,9 @@
 const GeneralError = require('../errors/GeneralError');
-
+const BaseController = require('../controllers/BaseController')
+const basecontroller = new BaseController();
 const errorHandler = (err, req, res, next) => {
   if (err instanceof GeneralError) {
-   console.log(err)
+ 
     return res.status(err.statusCode).json({ code: err.statusCode,
       message: err.message,
       error: err.detail });

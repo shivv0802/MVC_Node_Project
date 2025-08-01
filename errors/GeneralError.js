@@ -10,7 +10,7 @@ class GeneralError extends Error {
       return this.statusCode;
    }
 
-   getJsonRes(){
+   getJsonResponse(){
     return{
       code:this.statusCode,
       message : this.message,

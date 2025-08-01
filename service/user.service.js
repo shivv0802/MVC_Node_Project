@@ -1,4 +1,4 @@
-const { findUser, deleteUser, updateUser, createUserRepo, getUserByEmail, getUserById } = require('../repository/user.repository');
+const { findUser, deleteUser, updateUser, createUserRepo, getUserByEmail, getUserById, countAllUsers } = require('../repository/user.repository');
 const bcrypt = require('bcrypt')
 const { generateToken } = require('../utils/jwt.utils')
 const BadRequest = require('../errors/BadRequest');
@@ -48,13 +48,24 @@ async function loginOneUserService(data) {
 
 
 
-async function getAllUserService() {
+async function getAllUserService(page,limit) {
 
-    const fetchedUser = await findUser();
-    if (!fetchedUser) {
-        throw new BadRequest("BadRequest", "No User Fetched")
-    }
-    return fetchedUser;
+  console.log(page,"  ",limit)
+    const [users,total] = await Promise.all([
+        findUser(page,limit),
+        countAllUsers()
+    ])
+     if (!users || users.length === 0) {
+    throw new BadRequest("Bad Request", "No User Fetched");
+  }
+
+  return {
+    page,
+    limit,
+    totalUsers: total,
+    totalPages: Math.ceil(total / limit),
+    users
+  };
 
 }
 

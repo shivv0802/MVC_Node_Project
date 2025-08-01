@@ -3,13 +3,14 @@ const GeneralError = require('../errors/GeneralError')
 class BaseController{
 async sendErrorResponse(res,err){
     if(err instanceof GeneralError){
-        console.log(err instanceof GeneralError);
-        return res.status(err.getStatusCode()).json(err.getJsonRes())
+      
+        return res.status(err.getStatusCode()).json(err.getJsonResponse())
     }
      
     return res.status(500).json({
         code:500,
-        message : "internal server error"
+        message : "Internal Server Error",
+        error : err.message
     })
 
 }
