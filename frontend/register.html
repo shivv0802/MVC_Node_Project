@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 10px;
+            color: red;
+            font-size: 0.9em;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="RegisterForm">
+        <h2>Register</h2>
+        <input type="text" id="name" placeholder="name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <input type="text" id="role" placeholder="role" required />
+        <button type="submit">Register</button>
+        <p id="message"></p>
+
+    </form>
+
+    <script>
+        const API_URL = "http://localhost:8000/users/create";
+
+        document.getElementById("RegisterForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const role = document.getElementById("role").value;
+            const message = document.getElementById("message");
+
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ name, email, password, role })
+                    
+                });
+             
+                const data = await res.json();
+
+                if (!res.ok) {
+                    message.style.color = "red";
+                    message.textContent = data.message || "Registration failed";
+
+                    return;
+                }
+
+           
+                message.style.color = "green";
+                message.textContent = "✅ Registered successfully!";
+
+                setTimeout(() => {
+                    window.location.href = "/login";//here window obj. have location of current running browser
+                    //and href have the whole url of page and anything added it will redirect to that page
+                }, 1500);
+
+
+            } catch (err) {
+                console.error(err);
+                message.textContent = "Error connecting to server";
+                tokenDiv.textContent = "";
+            }
+        });
+    </script>
+</body>
+
+</html>

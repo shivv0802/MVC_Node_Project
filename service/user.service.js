@@ -32,7 +32,7 @@ async function loginOneUserService(data) {
     const user = await getUserByEmail(email);
 
     if (!user) throw new BadRequest("BadRequest", "No user is registered via this email");
-    //here we can directly call the generaError class it is ok but for the reusability and maintainability 
+    //here we can directly call the generalError class it is ok but for the reusability and maintainability 
     //we call user not found and it will also make the code cleaner
 
 
@@ -51,6 +51,7 @@ async function loginOneUserService(data) {
 async function getAllUserService(page,limit) {
 
   console.log(page,"  ",limit)
+  //if any promise fails then entire promise fails
     const [users,total] = await Promise.all([
         findUser(page,limit),
         countAllUsers()

@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
+    required: true ,
+    trim: true,
    
   },
   email: {
@@ -17,7 +19,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
-  }
+  },
+   mobiles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Mobile'
+  }]
 
 });
 const User = mongoose.model('User', userSchema);

@@ -17,6 +17,7 @@ async function createUserRepo(data) {
 async function findUser(page,limit) {
     try {
         const skip = (page-1)*limit;
+        
         return await User.find().skip(skip).limit(limit);
     
     }
@@ -35,7 +36,7 @@ async function countAllUsers(){
 
 async function deleteUser(id) {
     try {
-        return await User.findById(id);
+        return await User.findByIdAndDelete(id);
     
     }
     catch (error) {

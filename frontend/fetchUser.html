@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch Users</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #userList {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Users List</h2>
+    <button id="fetchUsers">Fetch All Users</button>
+    <button id="goToRegister">Register New User</button>
+    <button id="goToLogin">Use Another id</button>
+    <ul id="userList"></ul>
+
+    <script>
+        const USERS_URL = "http://localhost:8000/users/getAll";
+        const UPDATE_URL = "http://localhost:8000/users";
+        const DELETE_URL = "http://localhost:8000/users";
+
+
+        document.getElementById("fetchUsers").addEventListener("click", async () => {
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "Loading...";
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                userList.innerHTML = "No token found. Please login again.";
+                return;
+            }
+
+            try {
+                const res = await fetch(USERS_URL, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const data = await res.json();
+              
+                if (!res.ok) {
+                    userList.innerHTML = `${data.message || "Failed to fetch users"}`;
+                    return;
+                }
+
+                const users = Array.isArray(data.data?.users) ? data.data.users : [];
+
+                if (users.length === 0) {
+                    userList.innerHTML = "No users found.";
+                    return;
+                }
+
+                userList.innerHTML = "";
+                users.forEach((user) => {
+                    const li = document.createElement("li");
+
+                    li.innerHTML = `
+            <strong>${user.name || "No Name"}</strong> - ${user.email || "No Email"}
+            <button onclick="editUser('${user._id}', '${user.name}', '${user.email}', '${user.password}', '${user.role}')">Edit</button>
+            <button onclick="deleteUser('${user._id}')">Delete</button>
+          `;
+                    userList.appendChild(li);
+                });
+
+
+                document.getElementById("goToRegister").addEventListener("click", () => {
+                    window.location.href = "register.html"; 
+                });
+
+                document.getElementById("goToLogin").addEventListener("click", () => {
+                    window.location.href = "login.html"; 
+                });
+            } catch (err) {
+                console.error(err);
+                userList.innerHTML = "Error fetching users.";
+            }
+        });
+
+
+        async function editUser(id, currentName, currentEmail, currentPass, currentRole) {
+            const newName = prompt("Enter new name:", currentName);
+            const newEmail = prompt("Enter new email:", currentEmail);
+            const newPass = prompt("Enter new pass:", currentPass);
+            const newRole = prompt("Enter new role:", currentRole);
+
+            if (!newName || !newEmail || !newPass || !newRole) return alert("Name and email are required.");
+
+            const token = localStorage.getItem("token");
+
+            try {
+                const res = await fetch(`${UPDATE_URL}/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ name: newName, email: newEmail, password: newPass, role: newRole }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(`Update failed: ${data.message}`);
+                } else {
+                    alert("User updated!");
+                    document.getElementById("fetchUsers").click(); // Re-fetch list
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Error updating user.");
+            }
+        }
+
+        async function deleteUser(id) {
+            const confirmDelete = confirm("Are you sure you want to delete this user?");
+            if (!confirmDelete) return;
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Token is invalid you are not authorize to do that operation")
+                return;
+            }
+            try {
+                const res = await fetch(`${DELETE_URL}/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const data = await res.json()
+
+                if (!res.ok) {
+                    alert(`Deletion failed: ${data.message}`);
+                } else {
+                    alert("🗑 User deleted!");
+                    document.getElementById("fetchUsers").click();
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Error deleting user.");
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>
